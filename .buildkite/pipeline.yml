@@ -15,6 +15,7 @@ steps:
 
   - label: ":docker: Build"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -34,6 +35,7 @@ steps:
     # we don't hit the loop device limit
   - label: ":lint-roller: loop device cleanup"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -55,6 +57,7 @@ steps:
 
   - label: ":protractor: verify proto"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -67,6 +70,7 @@ steps:
 
   - label: ":golang: go mod tidy"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -79,6 +83,7 @@ steps:
 
   - label: ":gear: unit tests"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -89,8 +94,26 @@ steps:
       - make test-in-docker
     timeout_in_minutes: 10
 
-  - label: ":rotating_light: :running_shirt_with_sash: runtime isolated tests"
+  - label: ":rotating_light: :running_shirt_with_sash: runtime isolated tests on x86_64"
     agents:
+      arch: "x86_64"
+      queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
+      distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
+      hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
+    env:
+      DOCKER_IMAGE_TAG: "$BUILDKITE_BUILD_NUMBER"
+      NUMBER_OF_VMS: 100
+      EXTRAGOARGS: "-v -count=1 -race"
+      FICD_DM_VOLUME_GROUP: fcci-vg
+    artifact_paths:
+      - "runtime/logs/*"
+    command:
+      - make -C runtime integ-test FICD_DM_POOL=build_${BUILDKITE_BUILD_NUMBER}_runtime
+    timeout_in_minutes: 15
+
+  - label: ":rotating_light: :running_shirt_with_sash: runtime isolated tests on aarch64"
+    agents:
+      arch: "aarch64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
@@ -107,6 +130,7 @@ steps:
 
   - label: ":rotating_light: :exclamation: example tests"
     agents:
+      arch: "x86_64"
       queue: "${BUILDKITE_AGENT_META_DATA_QUEUE:-default}"
       distro: "${BUILDKITE_AGENT_META_DATA_DISTRO}"
       hostname: "${BUILDKITE_AGENT_META_DATA_HOSTNAME}"
